@@ -1,3 +1,7 @@
+--- Hot carrier generation in nanoparticles ---
+Main developer: Hanwen Jin
+Co-developer: Simão Meneses João
+
 This code calculates the hot carrier generation of nanoparticles subject to an external electric field. Fermi's Golden Rule is used to estimate the rate of hot carrier generation, using a quasi-static approximation of the electric field. The perturbing field is taken into account through a complex electric potential. Fermi's Golden Rule is evaluated using a Chebyshev decomposition.
 
 The code is separated into several files:
