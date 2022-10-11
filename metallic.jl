@@ -12,17 +12,19 @@ using MKL
 using Printf
 using NearestNeighbors
 
-
 # Important constants
-HaeV = 27.211386245988    # Hartree in eV
-boltzmann = 8.617333e-5   # Boltzmann constant in eV/Kelvin
-a_0 = 7.291               # Lattice constant
+HaeV = 27.211386245988       # [eV]        Hartree in eV
+boltzmann = 8.617333e-5      # [eV/Kelvin] Boltzmann constant
+#a_0 = 7.291                  # Lattice constant
 
 # Important parameters
-Fermi=0.5190/2            # Fermi energy
-T = 298                   # room temperature 
-beta=1/(boltzmann*T/HaeV) # inverse temperature in Hartree
+Fermi = 0.2595               # [Ha]     Fermi energy
+T     = 298                  # [Kelvin] room temperature 
+beta  = 1/(boltzmann*T/HaeV) # [Ha⁻¹]   inverse temperature
 
+# Modification to the spectral lines
+kappa = 0.0
+gph   = 0.06/HaeV            # [Ha] broadening
 
 # List of frequencies
 hwlist=LinRange(2.0,4.0,21)|>collect
@@ -31,20 +33,20 @@ PBS_INDEX=get(ENV,"PBS_ARRAY_INDEX","1")
 PBS_INDEX=parse(Int64,PBS_INDEX)
 
 # these are exactly the same as hwlist, but in string format
-filelist=["2p0eV.txt","2p1eV.txt","2p2eV.txt","2p3eV.txt","2p4eV.txt","2p5eV.txt","2p6eV.txt",
-          "2p7eV.txt","2p8eV.txt","2p9eV.txt","3p0eV.txt","3p1eV.txt","3p2eV.txt","3p3eV.txt",
-          "3p4eV.txt","3p5eV.txt","3p6eV.txt","3p7eV.txt","3p8eV.txt","3p9eV.txt","4p0eV.txt",
-          "4p1eV.txt","4p2eV.txt","4p3eV.txt","4p4eV.txt","4p5eV.txt","4p6eV.txt","4p7eV.txt",
-          "4p8eV.txt","4p9eV.txt"]
+filelist=["2p0eV","2p1eV","2p2eV","2p3eV","2p4eV","2p5eV","2p6eV",
+          "2p7eV","2p8eV","2p9eV","3p0eV","3p1eV","3p2eV","3p3eV",
+          "3p4eV","3p5eV","3p6eV","3p7eV","3p8eV","3p9eV","4p0eV",
+          "4p1eV","4p2eV","4p3eV","4p4eV","4p5eV","4p6eV","4p7eV",
+          "4p8eV","4p9eV"]
 hw=hwlist[PBS_INDEX]
 file_hw = filelist[PBS_INDEX]
 
 include("aux.jl")
-include("generate_positions.jl")
+include("shape_lib.jl")
 include("potential.jl")
 include("gold.jl")
 
-Rmax = 4.0 # 'radius' of the nanoparticle. If it's not a sphere, it controls the size
+Rmax = 8.0 # 'radius' of the nanoparticle. If it's not a sphere, it controls the size
 # shape_name = "cube"
 shape_name = "octahedron"
 # shape_name = "rhombic_dodecahedron"
@@ -58,8 +60,8 @@ println("Finished creating the atomic positions. Number of atoms: ", length(Elis
 # Use those positions to generate the Hamiltonian matrix elements
 H = gold_HV(Elist, Edict)
 
-Phi = compute_potential_sphere(R, Edict)
-# Phi,PhiT = comsol_read("comsol_out.txt")
+# Phi = compute_potential_sphere(R, Edict)
+Phi,PhiT = comsol_read("data_octa_out.txt")
 
 
 # a,b=size(H)
@@ -67,9 +69,9 @@ Phi = compute_potential_sphere(R, Edict)
 # exact(H, Phi, Fermi, beta)
 
 
-M1 = 200 # number of Cheb moments for first operator
-M2 = 200 # number of Cheb moments for second operator
-NR = 5 # number of random vectors
+M1 = 500 # number of Cheb moments for first operator
+M2 = 500 # number of Cheb moments for second operator
+NR = 10 # number of random vectors
 D1 = 1 # number of row blocks in the mu matrix
 D2 = 1 # number of col blocks in the mu matrix
 
@@ -77,8 +79,6 @@ println("Computing Chebyshev moments")
 mumn=compute_mumn!(H,Phi,M1,M2,D1,D2,NR)
 writedlm("cheb_moments.dat", mumn)
 
-kappa = 0.0
-gph = 0.06/HaeV
 N1 = 1000
 N2 = N1
 

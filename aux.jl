@@ -1,15 +1,5 @@
 
 
-function print_positions(R)
-    a,b = size(R)
-    f=open("atomic_positions.txt","w")
-    for i=1:a
-        x,y,z = R[i,:]
-        write(f,@sprintf("%f %f %f\n",x,y,z))
-    end
-    close(f)
-    
-end
 
 
 
@@ -96,6 +86,7 @@ end
 
 
 function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
+
     # Resum Chebyshev matrix
 
     function meshgrid(x,y)
@@ -131,7 +122,7 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
     Jxx,Jyy=meshgrid(Jx,Jy)
     mutmn=mumn.*Jxx.*Jyy 
 
-    # Get the E,E' matrix
+    # Get the E,E' matrix by summing the Chebyshev series
     NTyy,yy=meshgrid(NTylist,ylist)
     Dny=cos.(NTyy.*acos.(yy))./sqrt.(1.0.-yy.^2)
     xx,NTxx=meshgrid(xlist,NTxlist)
@@ -157,7 +148,7 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
     gi=getgi(Ei,gph,kappa,Fermi)
     gj=getgi(Ej,gph,kappa,Fermi)
 
-    # Integrating step
+    # Integrating step: kernel
     factor = zeros(Float64,Nx,Ny)
     hole_factor = zeros(Float64,Nx,Ny)
     for i=1:Nx 
