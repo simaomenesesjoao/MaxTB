@@ -3,6 +3,4 @@
 *.h5
 *.mph
 *.java
-octahedron/
-rhombic/
-cube/
+shapes/
