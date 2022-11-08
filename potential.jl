@@ -10,8 +10,8 @@ using Printf
 using NearestNeighbors
 
 # KPM shift and scale
-goldA=5e-1
-goldB=6e-1
+# goldA=0.5
+# goldB=0.6
 
 
 hw_pd_data=[0.1,0.15,0.2,0.26,0.3,0.36,0.4,0.46,0.5,0.56,0.6,0.72,0.8,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5,3.6,3.7,3.8,3.9,4.0,4.2,4.4,4.6,4.8,5.0,5.2,5.4,5.6,5.8,6.0,6.2,6.4,6.6,6.8,7.0,7.2,7.4,7.6,7.8,8.0,8.2,8.4,8.6,8.8,9.0,9.5,10.0]./HaeV
@@ -102,6 +102,6 @@ function comsol_read(filename;Norbitals=9,Nomean=true,factor=1.0)
 
     Φ  = sparse(iidx, jidx, value)
     ΦT = sparse(iidx, jidx, conj(value))
-    return Φ,ΦT
+    return Φ
 end
 

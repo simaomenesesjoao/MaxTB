@@ -4,6 +4,8 @@
 
 
 function compute_mumn!(H,Phi,NNL,NNR,NTx,NTy,Nk)
+    # NNL*NTx is the number of Cheb moments
+
     function init_vec_list!(list,r)
         local a,b=size(list)
         list[1,:]=r 
@@ -86,7 +88,6 @@ end
 
 
 function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
-
     # Resum Chebyshev matrix
 
     function meshgrid(x,y)
@@ -114,9 +115,22 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
     Ei=(xlist.*B).+A 
     Ej=(ylist.*B).+A
 
+    function jackson(n,N)
+        a = pi/(N+1)
+        b = (N+1-n)*cos(a*n)
+        c = sin(a*n)/tan(a)
+        return (b+c)/(N+1)
+    end
+
     # apply Jackson kernel to mu matrix (include the 1/2 factor in here)
-    Jx=1.0/NTx.*((NTx.-NTxlist).*cos.(pi*NTxlist./NTx)+sin.(pi.*NTxlist./NTx).*cos(pi/NTx)./sin(pi/NTx))
-    Jy=1.0/NTy.*((NTy.-NTylist).*cos.(pi*NTylist./NTy)+sin.(pi.*NTylist./NTy).*cos(pi/NTy)./sin(pi/NTy))
+    Jx = zeros(NTx,1)
+    Jy = zeros(NTy,1)
+    for i in 1:NTx
+        Jx[i] = jackson(i-1, NTx)
+    end
+    for i in 1:NTy
+        Jy[i] = jackson(i-1, NTy)
+    end
     Jx[1]=Jx[1]*0.5
     Jy[1]=Jy[1]*0.5
     Jxx,Jyy=meshgrid(Jx,Jy)
@@ -127,12 +141,15 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
     Dny=cos.(NTyy.*acos.(yy))./sqrt.(1.0.-yy.^2)
     xx,NTxx=meshgrid(xlist,NTxlist)
     Dxm=cos.(NTxx.*acos.(xx))./sqrt.(1.0.-xx.^2)
+
     phi=Dxm*mutmn*Dny 
-    factor=pi^2/B^2/4
+    #factor=pi^2/B^2/4
+    factor=4/B^2/pi^2
     phi=phi.*factor
 
 
-    writedlm("phi_cheb.dat", phi)
+    #writedlm("mutmn.dat", mutmn) 
+    writedlm("phi_cheb.dat", phi) # phi is the E,E' matrix
     writedlm("energies_jl.dat", Ei)
     
     # Final step of the calculation: final integration of E,E' matrix
@@ -157,7 +174,7 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
             fj = 1.0/(1.0 + exp(beta*(Ej[j]-Fermi)))
 
             gij  = gi[i] + gj[j] 
-            amp  = 2*pi*2.0/sqrt(2.0*pi*gij^2) # amplitude of the gaussian
+            amp  = 1.0/sqrt(2.0*pi*gij^2) # amplitude of the gaussian
             d_ij = amp*exp(-(hw+(Ej[j]-Ei[i] ) )^2/2.0/gij^2)
             d_ji = amp*exp(-(hw-(Ej[j]-Ei[i] ) )^2/2.0/gij^2)
             
@@ -165,8 +182,9 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
             hole_factor[i,j] = d_ij*fj*(1.0-fi)
         end 
     end 
-    
 
+    
+    writedlm("mask.dat", factor)
     
     Nelist=zeros(Ny)
     Nhlist=zeros(Ny)
@@ -221,7 +239,7 @@ function exact(H, Phi, Fermi, beta)
         # write(file, Gamma)
     # end
 
-    writedlm("M_jl.dat", Gamma)
+    writedlm("Phi_nm_jl.dat", Gamma)
     writedlm("eigen_energies_jl.dat", vals)
 
     

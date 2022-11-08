@@ -10,8 +10,8 @@ using Printf
 using NearestNeighbors
 
 # KPM shift and scale
-goldA=5e-1
-goldB=6e-1
+goldA=0.5
+goldB=0.6
 
 function gold_HV(Elist, Edict)
 

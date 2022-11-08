@@ -1,4 +1,8 @@
+
 shape_name = ARGS[1]
+Rmax       = parse(Float64, ARGS[2])
+rescale    = parse(Bool,    ARGS[3])
+
 shapes = ["octahedron", "cube", "rhombic"]
 
 if !(shape_name in shapes)
@@ -6,14 +10,31 @@ if !(shape_name in shapes)
     exit()
 end
 
-Rmax = parse(Float64, ARGS[2])
-
 include("shape_lib.jl")
 
 # Generate the positions of the atoms inside the nanoparticle
-Elist, Edict, R = generate_shape(Rmax, shape_name)
+# Rmax is the length of the solid's edge in nanometers
+l = Rmax/(a_0/2) # number of atomic (100) planes
+Elist, Edict, R = generate_shape(l, shape_name)
 println("Finished creating the atomic positions. Number of atoms: ", length(Elist))
 
-filename = shape_name*"/positions_rad"*string(Rmax)*".dat"
+Rstr = string(Rmax)
+a = split(Rstr, ".")
+Rstr = a[1]*"p"*a[2]
+filename = shape_name*"/positions_rad"*Rstr*".dat"
+println("filename", filename)
 # print_positions(R, filename)
-print_positions_comsol(R, filename)
+print_positions_comsol(R, filename, rescale=rescale)
+
+
+
+
+
+
+
+
+
+
+
+
+

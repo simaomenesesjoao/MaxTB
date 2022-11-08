@@ -3,7 +3,7 @@ using LinearAlgebra
 using Printf
 
 # Important constants
-a_0 = 7.291                  # Lattice constant
+a_0 = 0.408 # Lattice constant (length of FCC unit cell in nanometers)
 
 function print_positions(R, filename)
     a,b = size(R)
@@ -16,12 +16,13 @@ function print_positions(R, filename)
     
 end
 
-function print_positions_comsol(R, filename)
+function print_positions_comsol(R, filename; rescale::Bool=false)
     # Prints out the positions in a format that is nice to comsol
     # The positions are rescaled so that the shape lies within a cube 
     # of length 3 centered at the origin
     a,b = size(R)
     max_pos = maximum(abs.(R))
+    println("Max position is", max_pos)
 
     header = "% Model:              octa2.mph\n\
     % Version:            COMSOL 5.5.0.359\n\
@@ -36,7 +37,14 @@ function print_positions_comsol(R, filename)
     f=open(filename,"w")
     write(f, header)
     for i=1:a
-        x,y,z = R[i,:]/max_pos*1.5
+        x,y,z = R[i,:]
+
+        # COMSOL expects the nanoparticles to lie within a cube
+        # of side 3 centered at the origin, so these points need
+        # to be rescaled for that purpose
+        if rescale
+            x,y,z = R[i,:]/max_pos*1.5
+        end
         write(f,@sprintf("%f\t\t%f\t\t%f\n",x,y,z))
     end
     close(f)
@@ -164,6 +172,12 @@ function generate_shape(radius, shape_name)
     if shape_name == "cube"
         func = in_shape_planes
         l = radius/2 # radius is the length of square edges
+
+        # make sure that the floor of l is divisible by 2, so that only the (200) faces appear
+        lt = floor(Int, l)
+        if lt % 2 != 0
+            l += 1.0
+        end
         
         # 6 planes defining the cube centered at 0,0,0, with faces parallel to xy, xz and yz
         arg = [l 0 0; -l 0 0 ; 0 l 0 ; 0 -l 0 ; 0 0 l ; 0 0 -l]
@@ -171,14 +185,17 @@ function generate_shape(radius, shape_name)
         func = in_shape_planes
 
         # radius is the length of the octahedron's triangle edges
-        s = radius/2 
+        s = radius/sqrt(18)
 
         # 8 planes defining the octahedron centered at (0,0,0)
         arg = [s -s -s; -s s -s; -s -s -s; s s -s; s s s; s -s s; -s s s; -s -s s]
 
     elseif shape_name == "rhombic"
         func = in_shape_planes
-        s = radius/2.0
+
+        # radius is the length of the edges of the rhombic dodecahedron
+        s = radius/sqrt(3)
+
         arg = [s s 0; s 0 s; 0 s s; -s -s 0; -s 0 -s; 0 -s -s; 0 -s s; -s 0 s; -s s 0; 0 s -s; s 0 -s; s -s 0]
     end
 

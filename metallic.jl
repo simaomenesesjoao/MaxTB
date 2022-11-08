@@ -2,6 +2,7 @@
 
 using DataStructures
 using Interpolations
+using HDF5
 using DelimitedFiles
 using LinearAlgebra
 using SparseArrays
@@ -27,9 +28,10 @@ kappa = 0.0
 gph   = 0.06/HaeV            # [Ha] broadening
 
 # List of frequencies
+
 hwlist=LinRange(2.0,4.0,21)|>collect
 hwlist=hwlist./HaeV
-PBS_INDEX=get(ENV,"PBS_ARRAY_INDEX","1")
+PBS_INDEX=get(ENV,"PBS_A","1")
 PBS_INDEX=parse(Int64,PBS_INDEX)
 
 # these are exactly the same as hwlist, but in string format
@@ -46,13 +48,24 @@ include("shape_lib.jl")
 include("potential.jl")
 include("gold.jl")
 
-Rmax = 8.0 # 'radius' of the nanoparticle. If it's not a sphere, it controls the size
+# parse input
+Nargs = size(ARGS)[1]
+println("Nargs:",Nargs)
+shape_name = ARGS[1]
+Rmax       = parse(Float64, ARGS[2])
+hw         = parse(Float64, ARGS[3])/HaeV
+outfile_name = ARGS[4]
+h5name = ARGS[5]
+println("hw",hw)
+
+# Rmax = 2.0 # 'radius' of the nanoparticle. If it's not a sphere, it controls the size
 # shape_name = "cube"
-shape_name = "octahedron"
+# shape_name = "octahedron"
 # shape_name = "rhombic_dodecahedron"
 
 # Generate the positions of the atoms inside the nanoparticle
-Elist, Edict, R = generate_shape(Rmax, shape_name)
+l = Rmax/(a_0/2) # number of atomic (100) planes
+Elist, Edict, R = generate_shape(l, shape_name)
 println("Finished creating the atomic positions. Number of atoms: ", length(Elist))
 # print the positions of the particles for visualization
 # print_positions(R)
@@ -60,37 +73,56 @@ println("Finished creating the atomic positions. Number of atoms: ", length(Elis
 # Use those positions to generate the Hamiltonian matrix elements
 H = gold_HV(Elist, Edict)
 
-# Phi = compute_potential_sphere(R, Edict)
-Phi,PhiT = comsol_read("data_octa_out.txt")
+Phi = compute_potential_sphere(R, Edict)
+# If the potential file is provided, use it instead of the default linear potential
+if Nargs == 6
+    potname = ARGS[6]
+    Phi = comsol_read(potname)
+    # Make sure that this potential is compatible with the system 
+    if size(Phi)!=size(H)
+        println("Dimensions of the potential provided do not match the geometry requested. Exiting.")
+        exit()
+    end
+end
 
 
 # a,b=size(H)
 # println("Dimensions of the sparse Hamiltonian: $a $b")
-# exact(H, Phi, Fermi, beta)
+#exact(H, Phi, Fermi, beta)
 
 
-M1 = 500 # number of Cheb moments for first operator
-M2 = 500 # number of Cheb moments for second operator
-NR = 10 # number of random vectors
-D1 = 1 # number of row blocks in the mu matrix
-D2 = 1 # number of col blocks in the mu matrix
+M1 = 30 # number of Cheb moments PER BLOCK for first operator 
+M2 = 30 # number of Cheb moments PER BLOCK for second operator
+NR = 1 # number of random vectors
+D1 = 40 # number of row blocks in the mu matrix
+D2 = 40 # number of col blocks in the mu matrix
 
 println("Computing Chebyshev moments")
 mumn=compute_mumn!(H,Phi,M1,M2,D1,D2,NR)
-writedlm("cheb_moments.dat", mumn)
+# writedlm("cheb_moments.dat", mumn)
 
-N1 = 1000
-N2 = N1
+# h5name = "moments.h5"
+fid = h5open(h5name, "w")
+fid["moments"] = mumn
+close(fid)
 
-println("Resumming Chebyshev moments")
-Ej,Nelist,Nhlist=compute_eh_list(mumn,N1,N2,hw,goldA,goldB,Fermi,beta,kappa,gph)
+# h5name = "moments.h5"
+# fid = h5open(h5name, "r")
+# mumn = read(fid["moments"])
+# close(fid)
 
-f3=open("Metallic_output_"*file_hw*".txt","w")
-for i=1:lastindex(Ej)
-    write(f3,@sprintf(" %+1.15E",Ej[i]))
-    write(f3,@sprintf(" %+1.15E",Nelist[i]))
-    write(f3,@sprintf(" %+1.15E",Nhlist[i]))
-    write(f3,"\n")
-end
+# N1 = 1000
+# N2 = N1
+
+# println("Resumming Chebyshev moments")
+# Ej,Nelist,Nhlist=compute_eh_list(mumn,N1,N2,hw,goldA,goldB,Fermi,beta,kappa,gph)
+
+# f3=open(outfile_name,"w")
+# for i=1:lastindex(Ej)
+    # write(f3,@sprintf(" %+1.15E",Ej[i]))
+    # write(f3,@sprintf(" %+1.15E",Nelist[i]))
+    # write(f3,@sprintf(" %+1.15E",Nhlist[i]))
+    # write(f3,"\n")
+# end
 
 

@@ -5,7 +5,7 @@
 import com.comsol.model.*;
 import com.comsol.model.util.*;
 
-/** Model exported on Oct 11 2022, 16:27 by COMSOL 5.5.0.359. */
+/** Model exported on Oct 24 2022, 15:06 by COMSOL 5.5.0.359. */
 public class octahedron {
 
   public static Model run() {
@@ -139,10 +139,15 @@ public class octahedron {
     model.component("comp1").physics("es").create("pot1", "ElectricPotential", 2);
     model.component("comp1").physics("es").feature("pot1").selection().set(1, 2, 3, 4, 5, 14);
 
+    model.component("comp1").mesh("mesh1").create("ftet2", "FreeTet");
     model.component("comp1").mesh("mesh1").create("ftet1", "FreeTet");
+    model.component("comp1").mesh("mesh1").feature("ftet2").selection().geom("geom1", 3);
+    model.component("comp1").mesh("mesh1").feature("ftet2").selection().set(2);
+    model.component("comp1").mesh("mesh1").feature("ftet2").create("size1", "Size");
+    model.component("comp1").mesh("mesh1").feature("ftet2").create("dis1", "Distribution");
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("dis1").selection()
+         .set(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20);
     model.component("comp1").mesh("mesh1").feature("ftet1").create("size1", "Size");
-    model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").selection().geom("geom1", 3);
-    model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").selection().set(2);
 
     model.result().table("evl3").label("Evaluation 3D");
     model.result().table("evl3").comments("Interactive 3D values");
@@ -154,7 +159,7 @@ public class octahedron {
     model.component("comp1").view("view2").axis().set("ymax", 6.791007041931152);
 
     model.component("comp1").material("mat1").propertyGroup("def")
-         .set("relpermittivity", new String[]{"-10+i", "0", "0", "0", "-10+i", "0", "0", "0", "-10+i"});
+         .set("relpermittivity", new String[]{"-8.0332+1.0224i", "0", "0", "0", "-8.0332+1.0224i", "0", "0", "0", "-8.0332+1.0224i"});
     model.component("comp1").material("mat1").propertyGroup("def").set("relpermittivity_symmetry", "0");
     model.component("comp1").material("mat2").propertyGroup("def")
          .set("relpermittivity", new String[]{"1", "0", "0", "0", "1", "0", "0", "0", "1"});
@@ -162,12 +167,15 @@ public class octahedron {
 
     model.component("comp1").physics("es").feature("pot1").set("V0", "z[V/m]");
 
-    model.component("comp1").mesh("mesh1").feature("size").set("hauto", 1);
+    model.component("comp1").mesh("mesh1").feature("size").set("hauto", 3);
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("size1").set("hauto", 1);
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("size1").set("custom", "on");
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("size1").set("hmax", 0.1);
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("size1").set("hmaxactive", true);
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("size1").set("hmin", 0.001);
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("size1").set("hminactive", true);
+    model.component("comp1").mesh("mesh1").feature("ftet2").feature("dis1").set("numelem", 100);
     model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").set("hauto", 1);
-    model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").set("custom", "on");
-    model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").set("hmax", 0.04);
-    model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").set("hmaxactive", true);
-    model.component("comp1").mesh("mesh1").feature("ftet1").feature("size1").set("hminactive", true);
     model.component("comp1").mesh("mesh1").run();
 
     model.study().create("std1");
@@ -184,11 +192,15 @@ public class octahedron {
     model.sol("sol1").feature("s1").feature("i1").create("mg1", "Multigrid");
     model.sol("sol1").feature("s1").feature().remove("fcDef");
 
+    model.result().dataset().create("mesh1", "Mesh");
     model.result().create("pg1", "PlotGroup3D");
     model.result("pg1").create("mslc1", "Multislice");
     model.result("pg1").create("arwl1", "ArrowLine");
     model.result("pg1").create("slc1", "Slice");
+    model.result("pg1").create("surf1", "Surface");
+    model.result("pg1").feature("slc1").set("data", "dset1");
     model.result().export().create("data1", "Data");
+    model.result().export().create("data2", "Data");
 
     model.sol("sol1").attach("std1");
     model.sol("sol1").feature("s1").feature("i1").feature("mg1").set("prefun", "amg");
@@ -204,14 +216,24 @@ public class octahedron {
     model.result("pg1").feature("arwl1").set("scale", 0.4);
     model.result("pg1").feature("arwl1").set("scaleactive", true);
     model.result("pg1").feature("slc1").set("quickxnumber", 1);
+    model.result("pg1").feature("slc1").set("smooth", "internal");
     model.result("pg1").feature("slc1").set("resolution", "normal");
+    model.result("pg1").feature("surf1").active(false);
+    model.result("pg1").feature("surf1").set("resolution", "normal");
     model.result().export("data1").set("expr", new String[]{"V"});
     model.result().export("data1").set("unit", new String[]{"V"});
     model.result().export("data1").set("descr", new String[]{"Electric potential"});
     model.result().export("data1").set("filename", "/home/sjoao/Desktop/octahedron/pot2p0_rad8.0");
     model.result().export("data1").set("location", "file");
     model.result().export("data1").set("coordfilename", "/home/sjoao/Desktop/octahedron/positions_rad8.0.dat");
+    model.result().export("data2").set("expr", new String[]{"V"});
+    model.result().export("data2").set("unit", new String[]{"V"});
+    model.result().export("data2").set("descr", new String[]{"Electric potential"});
+    model.result().export("data2").set("filename", "/home/sjoao/Desktop/octahedron/pot2p0_rad8.0");
+    model.result().export("data2").set("location", "file");
+    model.result().export("data2").set("coordfilename", "/home/sjoao/Desktop/octahedron/positions_rad8.0.dat");
     model.result().export("data1").run();
+    model.result().export("data2").run();
 
     return model;
   }
