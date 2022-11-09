@@ -125,30 +125,34 @@ function explore(nnlist::Array{Int64,2}, in_shape::Function, vararg...; start_po
     Ulist=Deque{Vector{Int64}}()
     Elist=Deque{Vector{Int64}}() # list of all the sites inside the nanoparticle [(x,y,z), ...]
 
-    idx=1
-    Udict[start_pos]=idx
-    push!(Ulist,start_pos) # add the first position to the back of the list
-    while (length(Ulist)>0)
+    idx = 1
+    Udict[start_pos] = idx
+    push!(Ulist, start_pos) # add the first position to the back of the list
+    while (length(Ulist) > 0)
 
-        Ri=popfirst!(Ulist) # remove element from the front of the list
-        idx2=pop!(Udict,Ri) # remove this element from the dictionary
+        Ri   = popfirst!(Ulist) # remove element from the front of the list
+        idx2 = pop!(Udict,Ri) # remove this element from the dictionary
 
-        Edict[Ri]=idx2 
-        push!(Elist,Ri)
+        Edict[Ri] = idx2 
+        push!(Elist, Ri)
 
         for j=1:N_nearneigh
-            Rij=nnlist[:,j] # find all the nearest and next nearest neighbors of this atom
-            Rj=Ri+Rij # calculate their positions
-            exists=haskey(Udict,Rj) # check if it already exists in the dictionary
-            exists= exists|| haskey(Edict,Rj)
+            Rij = nnlist[:,j] # find all the nearest and next nearest neighbors of this atom
+            Rj  = Ri + Rij # calculate their positions
+            exists = haskey(Udict,Rj) # check if it already exists in the dictionary
+            exists = exists || haskey(Edict,Rj)
 
             # if it does not exist yet and is inside the nanoparticle, add it
             if ((!exists) && in_shape(Rj,vararg))
-                idx=idx+1
-                Udict[Rj]=idx 
-                push!(Ulist,Rj)
+                idx = idx + 1
+                Udict[Rj] = idx 
+                push!(Ulist, Rj)
             end 
+
         end 
+        # println("Edict", Edict, Elist)
+        # println("Udict", Udict, Ulist)
+        # println("\n")
     end
 
     return Elist,Edict
@@ -165,11 +169,14 @@ function generate_shape(radius, shape_name)
             [0,1,1];;[0,-1,1];;[0,1,-1];;[0,-1,-1];;
             [2,0,0];;[-2,0,0];;[0,2,0];;[0,-2,0];;[0,0,2];;[0,0,-2]]
 
-
     # Create the atomic positions of the nanoparticle. Sphere by default
     func = in_shape_sphere
-    arg = radius
-    if shape_name == "cube"
+    arg  = radius
+
+    if shape_name == "sphere"
+        func = in_shape_sphere
+
+    elseif shape_name == "cube"
         func = in_shape_planes
         l = radius/2 # radius is the length of square edges
 
@@ -197,10 +204,12 @@ function generate_shape(radius, shape_name)
         s = radius/sqrt(3)
 
         arg = [s s 0; s 0 s; 0 s s; -s -s 0; -s 0 -s; 0 -s -s; 0 -s s; -s 0 s; -s s 0; 0 s -s; s 0 -s; s -s 0]
+    else
+        println("Shape "*shape_name*"not supported")
     end
 
     Elist,Edict=explore(nnlist,func,arg;start_pos=[0,0,0])
-    R = Deque_to_vec(Elist,Edict;Transform=Transform)
+    R = Deque_to_vec(Elist, Edict; Transform=Transform)
 
     return Elist, Edict, R
 end

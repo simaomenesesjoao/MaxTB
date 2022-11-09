@@ -3,4 +3,5 @@
 *.h5
 *.mph
 *.java
+.ipynb_checkpoints
 shapes/

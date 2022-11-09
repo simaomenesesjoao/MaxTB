@@ -79,7 +79,7 @@ function gold_HV(Elist, Edict)
         # ...
         global table=Array{Int64,2}(undef,NNA,18)
         for Ri in Elist
-            Idx=Edict[Ri]
+            Idx = Edict[Ri]
             for j =1:18
                 Rij=nnlist_for_table[:,j]
                 Rj=Ri+Rij 
@@ -239,21 +239,21 @@ function gold_HV(Elist, Edict)
         V[8,1]=(m*sp_sig)
         V[9,1]=(n*sp_sig)
         #dp interaction
-        V[2,7]=(3^.5*l^2*m*pd_sig+m*(1-2*l^2)*pd_pi)#x->xy 
-        V[2,8]=(3^0.5*m^2*l*pd_sig+l*(1-2*m^2)*pd_pi)#y->xy
-        V[2,9]=(3^0.5*l*m*n*pd_sig-2*l*m*n*pd_pi)#z->xy
-        V[3,7]=(3^.5*l^2*n*pd_sig+n*(1-2*l^2)*pd_pi) #x->xz
-        V[3,8]=(3^0.5*l*m*n*pd_sig-2*l*m*n*pd_pi) #xz->y
-        V[3,9]=(3^0.5*n^2*l*pd_sig+l*(1-2*n^2)*pd_pi) #xz->z
-        V[4,7]=(3^0.5*l*m*n*pd_sig-2*l*m*n*pd_pi) #yz->x
-        V[4,8]=(3^0.5*m^2*n*pd_sig+n*(1-2*m^2)*pd_pi) #yz->y
-        V[4,9]=(3^0.5*n^2*m*pd_sig+m*(1-2*n^2)*pd_pi) #yz->z
-        V[5,7]=(3^0.5/2*l*(l^2-m^2)*pd_sig+l*(1-l^2+m^2)*pd_pi) #x^2-y^2->x
-        V[5,8]=(3^0.5/2*m*(l^2-m^2)*pd_sig-m*(1+l^2-m^2)*pd_pi) #x^2-y^2->y
-        V[5,9]=(3^0.5/2*n*(l^2-m^2)*pd_sig-n*(l^2-m^2)*pd_pi) #x^2-y^2->z
-        V[6,7]=(l*(n^2-(l^2+m^2)/2)*pd_sig-3^0.5*l*n^2*pd_pi) #3z^2-r^2->x
-        V[6,8]=(m*(n^2-(l^2+m^2)/2)*pd_sig-3^0.5*m*n^2*pd_pi) #3z^2-r^2->y
-        V[6,9]=(n*(n^2-(l^2+m^2)/2)*pd_sig+3^0.5*n*(l^2+m^2)*pd_pi)#3z^2-r^2->z
+        V[2,7]=(3^.5*l^2*m*pd_sig+m*(1-2*l^2)*pd_pi)  # x->xy 
+        V[2,8]=(3^0.5*m^2*l*pd_sig+l*(1-2*m^2)*pd_pi) # y->xy
+        V[2,9]=(3^0.5*l*m*n*pd_sig-2*l*m*n*pd_pi)     # z->xy
+        V[3,7]=(3^.5*l^2*n*pd_sig+n*(1-2*l^2)*pd_pi)  # x->xz
+        V[3,8]=(3^0.5*l*m*n*pd_sig-2*l*m*n*pd_pi)     # xz->y
+        V[3,9]=(3^0.5*n^2*l*pd_sig+l*(1-2*n^2)*pd_pi) # xz->z
+        V[4,7]=(3^0.5*l*m*n*pd_sig-2*l*m*n*pd_pi)     # yz->x
+        V[4,8]=(3^0.5*m^2*n*pd_sig+n*(1-2*m^2)*pd_pi) # yz->y
+        V[4,9]=(3^0.5*n^2*m*pd_sig+m*(1-2*n^2)*pd_pi) # yz->z
+        V[5,7]=(3^0.5/2*l*(l^2-m^2)*pd_sig+l*(1-l^2+m^2)*pd_pi)     # x^2-y^2->x
+        V[5,8]=(3^0.5/2*m*(l^2-m^2)*pd_sig-m*(1+l^2-m^2)*pd_pi)     # x^2-y^2->y
+        V[5,9]=(3^0.5/2*n*(l^2-m^2)*pd_sig-n*(l^2-m^2)*pd_pi)       # x^2-y^2->z
+        V[6,7]=(l*(n^2-(l^2+m^2)/2)*pd_sig-3^0.5*l*n^2*pd_pi)       # 3z^2-r^2->x
+        V[6,8]=(m*(n^2-(l^2+m^2)/2)*pd_sig-3^0.5*m*n^2*pd_pi)       # 3z^2-r^2->y
+        V[6,9]=(n*(n^2-(l^2+m^2)/2)*pd_sig+3^0.5*n*(l^2+m^2)*pd_pi) # 3z^2-r^2->z
         return V
     end 
 

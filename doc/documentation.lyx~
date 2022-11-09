@@ -591,10 +591,6 @@ noprefix "false"
 Workflow
 \end_layout
 
-\begin_layout Standard
-f
-\end_layout
-
 \begin_layout Section
 Interpretation of the results
 \end_layout
@@ -828,6 +824,94 @@ Chebyshev method
 
 \begin_layout Part
 Code
+\end_layout
+
+\begin_layout Section
+Dependencies
+\end_layout
+
+\begin_layout Itemize
+julia with the following dependencies
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+DelimitedFiles 
+\end_layout
+
+\begin_layout Itemize
+Printf 
+\end_layout
+
+\begin_layout Itemize
+MKL 
+\end_layout
+
+\begin_layout Itemize
+Random 
+\end_layout
+
+\begin_layout Itemize
+Dates 
+\end_layout
+
+\begin_layout Itemize
+MKLSparse 
+\end_layout
+
+\begin_layout Itemize
+HDF5 
+\end_layout
+
+\begin_layout Itemize
+NearestNeighbors 
+\end_layout
+
+\begin_layout Itemize
+DataStructures 
+\end_layout
+
+\begin_layout Itemize
+Interpolations 
+\end_layout
+
+\begin_layout Itemize
+SparseArrays 
+\end_layout
+
+\begin_layout Itemize
+LinearAlgebra 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Lines to install them using the Julia prompt
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+using Pkg;
+\end_layout
+
+\begin_layout Plain Layout
+
+Pkg.add.(["DelimitedFiles", "Printf", "MKL", "Random", "Dates", "MKLSparse",
+ "HDF5", "NearestNeighbors", "DataStructures", "Interpolations", "SparseArrays",
+ "LinearAlgebra"])
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+python3 with vpython for visualization (requires python < 3.8.6)
 \end_layout
 
 \begin_layout Section

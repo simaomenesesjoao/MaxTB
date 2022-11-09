@@ -155,7 +155,7 @@ N_{e}\left(E,\omega\right)=\frac{2}{V}\sum_{if}\Gamma_{if}\left(\omega\right)\de
 where 
 \begin_inset Formula 
 \[
-\Gamma_{if}=\frac{2\pi}{\hbar}\left|\left\langle f\left|\Phi_{\text{tot}}\left(\omega\right)\right|i\right\rangle \right|^{2}\delta\left(E_{f}-E_{i}-\hbar\omega\right)f\left(E_{i}\right)\left(1-f\left(E_{f}\right)\right).
+\Gamma_{if}=\frac{2\pi}{\hbar}\left|\left\langle f\left|\phi_{\text{tot}}\left(\omega\right)\right|i\right\rangle \right|^{2}\delta\left(E_{f}-E_{i}-\hbar\omega\right)f\left(E_{i}\right)\left(1-f\left(E_{f}\right)\right).
 \]
 
 \end_inset
@@ -178,6 +178,77 @@ where
 \end_inset
 
 .
+ The interpretation of each of the terms is the following:
+\end_layout
+
+\begin_layout Enumerate
+The electric field does not affect every pair of states in the same manner.
+ The number 
+\begin_inset Formula $\left\langle f\left|\phi_{\text{tot}}\left(\omega\right)\right|i\right\rangle $
+\end_inset
+
+ codifies this effect.
+ 
+\end_layout
+
+\begin_layout Enumerate
+The product of Fermi functions 
+\begin_inset Formula $f\left(E_{i}\right)\left(1-f\left(E_{f}\right)\right)$
+\end_inset
+
+ ensures that only initial states below the Fermi energy and final states
+ above the Fermi energy contribute to this integral.
+ A finite temperature relaxes this restriction slightly.
+ 
+\end_layout
+
+\begin_layout Enumerate
+The second Dirac delta 
+\begin_inset Formula $\delta\left(E_{f}-E_{i}-\hbar\omega\right)$
+\end_inset
+
+ is a consequence of the interaction with the electric field of frequency
+ 
+\begin_inset Formula $\omega$
+\end_inset
+
+.
+ The electric field only causes transitions which change the energy by 
+\begin_inset Formula $\hbar\omega$
+\end_inset
+
+.
+ In practice, there are many mechanisms going on inside the nanoparticle,
+ which slightly violate this restriction, so the Dirac delta is instead
+ approximated by a gaussian of a certain width 
+\begin_inset Formula $\gamma$
+\end_inset
+
+, denoted by 
+\begin_inset Formula $\delta_{\gamma}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The first Dirac delta 
+\begin_inset Formula $\delta\left(E-E_{f}\right)$
+\end_inset
+
+ means that only final states which have energy 
+\begin_inset Formula $E$
+\end_inset
+
+ are to be considered.
+ Like before, this Dirac delta can also be approximated by a gaussian of
+ a certain (different) width 
+\begin_inset Formula $\lambda$
+\end_inset
+
+, representing the limited resolution of the measuring apparatus.
+ If this is ignored, we have infinite resolution, which gives rise to sharp
+ peaks.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -267,13 +338,88 @@ Calculation of the Fermi Golden Rule
 \end_layout
 
 \begin_layout Standard
-To understand what the code is doing, it is useful to understand the mathematica
-l operations that are required in order to compute 
-\begin_inset Formula $N_{e}\left(E,\omega\right)$
+In practice, for large nanoparticles, the form used for the Fermi golden
+ rule is the following:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\left(1-f\left(E\right)\right)\int_{-\infty}^{\infty}d\varepsilon f\left(\varepsilon\right)\delta_{\gamma}\left(E-\varepsilon-\hbar\omega\right)\Phi_{\omega}\left(\varepsilon,E\right)\label{eq: HC generation rate infinite precision}
+\end{equation}
+
 \end_inset
 
-.
- Since diagonalization is very hard to do for large matrices, we need to
+ where
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\text{Tr}\left[\phi_{\text{tot}}\left(\omega\right)\delta\left(\varepsilon-H\right)\phi_{\text{tot}}^{\dagger}\left(\omega\right)\delta\left(\varepsilon^{\prime}-H\right)\right]
+\]
+
+\end_inset
+
+represents the optical matrix in energy space rather than the eigenbasis
+ of the Hamiltonian.
+ It is calculated by decomposing it into a double Chebyshev expansion
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\sum_{n=0}^{M-1}\sum_{m=0}^{M-1}\Delta_{n}\left(\varepsilon\right)\Delta_{m}\left(\varepsilon^{\prime}\right)\mu_{nm}\label{eq: Optical matrix element as Cheb expansion}
+\end{equation}
+
+\end_inset
+
+where
+\begin_inset Formula 
+\begin{equation}
+\mu_{nm}=\text{Tr}\left[\phi_{\text{tot}}\left(\omega\right)T_{n}\left(H\right)\phi_{\text{tot}}^{\dagger}\left(\omega\right)T_{m}\left(H\right)\right]\label{eq: Cheb moments}
+\end{equation}
+
+\end_inset
+
+is the matrix of Chebyshev moments.
+ 
+\begin_inset Formula $T_{n}\left(H\right)$
+\end_inset
+
+ is the 
+\begin_inset Formula $n$
+\end_inset
+
+-th Chebyshev polynomial with a matrix argument.
+ 
+\end_layout
+
+\begin_layout Section
+Workflow
+\end_layout
+
+\begin_layout Section
+Interpretation of the results
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Technical information
+\end_layout
+
+\begin_layout Standard
+Obtaining eq.
+\end_layout
+
+\begin_layout Standard
+Since diagonalization is very hard to do for large matrices, we need to
  express 
 \begin_inset Formula $N_{e}$
 \end_inset
@@ -446,7 +592,7 @@ With point
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\left(1-f\left(E\right)\right)\int_{-\infty}^{\infty}d\varepsilon f\left(\varepsilon\right)\delta_{\gamma}\left(E-\varepsilon-\hbar\omega\right)\Phi_{\omega}\left(\varepsilon,E\right).\label{eq: HC generation rate infinite precision}
+N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\left(1-f\left(E\right)\right)\int_{-\infty}^{\infty}d\varepsilon f\left(\varepsilon\right)\delta_{\gamma}\left(E-\varepsilon-\hbar\omega\right)\Phi_{\omega}\left(\varepsilon,E\right).\label{eq: HC generation rate infinite precision-1}
 \end{equation}
 
 \end_inset
@@ -497,113 +643,6 @@ is the coefficient of the expansion regularized by the Jackson weight
 \end_inset
 
  and can be calculated in two steps.
-\end_layout
-
-\begin_layout Subsubsection*
-Step 1: Calculation of the Chebyshev moments
-\end_layout
-
-\begin_layout Standard
-Gathering all the operators together, we get the Chebyshev moments
-\end_layout
-
-\begin_layout Subsubsection*
-\begin_inset Formula 
-\[
-\mu_{nm}=\text{Tr}\left[\Phi_{\text{tot}}\left(\omega\right)T_{n}\left(H\right)\Phi_{\text{tot}}^{\dagger}\left(\omega\right)T_{m}\left(H\right)\right]
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-which can be calculated very efficiently using the Chebyshev polynomials'
- recursion properties.
-\end_layout
-
-\begin_layout Subsubsection*
-Step 2: Resummation of the expansion
-\end_layout
-
-\begin_layout Standard
-What's left defines the optical matrix element 
-\begin_inset Formula $\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)$
-\end_inset
-
- in terms of the Chebyshev moments
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\sum_{n=0}^{M-1}\sum_{m=0}^{M-1}\Delta_{n}\left(\varepsilon\right)\Delta_{m}\left(\varepsilon^{\prime}\right)\mu_{nm}.
-\]
-
-\end_inset
-
-Furthermore, considering 
-\begin_inset Formula $\Delta_{n}\left(\varepsilon\right)$
-\end_inset
-
- as a matrix 
-\begin_inset Formula $\Delta_{n\varepsilon}$
-\end_inset
-
-, this reduces to a triple matrix product
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\left[\Delta^{T}\mu\Delta\right]_{\varepsilon\varepsilon^{\prime}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Once these two steps have been completed, the hot-carrier generation rate
- can be found by doing the final step of integrating 
-\begin_inset Formula $\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)$
-\end_inset
-
- according to eq.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq: HC generation rate infinite precision"
-plural "false"
-caps "false"
-noprefix "false"
-
-\end_inset
-
-.
- These three steps (1 - moments, 2 - resummation, 3 - integration) each
- represent three important parts of the workflow.
-\end_layout
-
-\begin_layout Section
-Workflow
-\end_layout
-
-\begin_layout Section
-Interpretation of the results
-\end_layout
-
-\begin_layout Standard
-\begin_inset Newpage pagebreak
-\end_inset
-
-
-\end_layout
-
-\begin_layout Part
-Technical information
 \end_layout
 
 \begin_layout Section
@@ -824,6 +863,94 @@ Chebyshev method
 
 \begin_layout Part
 Code
+\end_layout
+
+\begin_layout Section
+Dependencies
+\end_layout
+
+\begin_layout Itemize
+julia with the following dependencies
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+DelimitedFiles 
+\end_layout
+
+\begin_layout Itemize
+Printf 
+\end_layout
+
+\begin_layout Itemize
+MKL 
+\end_layout
+
+\begin_layout Itemize
+Random 
+\end_layout
+
+\begin_layout Itemize
+Dates 
+\end_layout
+
+\begin_layout Itemize
+MKLSparse 
+\end_layout
+
+\begin_layout Itemize
+HDF5 
+\end_layout
+
+\begin_layout Itemize
+NearestNeighbors 
+\end_layout
+
+\begin_layout Itemize
+DataStructures 
+\end_layout
+
+\begin_layout Itemize
+Interpolations 
+\end_layout
+
+\begin_layout Itemize
+SparseArrays 
+\end_layout
+
+\begin_layout Itemize
+LinearAlgebra 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Lines to install them using the Julia prompt
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+using Pkg;
+\end_layout
+
+\begin_layout Plain Layout
+
+Pkg.add.(["DelimitedFiles", "Printf", "MKL", "Random", "Dates", "MKLSparse",
+ "HDF5", "NearestNeighbors", "DataStructures", "Interpolations", "SparseArrays",
+ "LinearAlgebra"])
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+python3 with vpython for visualization (requires python < 3.8.6)
 \end_layout
 
 \begin_layout Section

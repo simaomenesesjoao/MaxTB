@@ -21,10 +21,13 @@ beta  = 1/(boltzmann*T/HaeV) # [Ha⁻¹]   inverse temperature
 kappa = 0.0
 gph   = 0.06/HaeV            # [Ha] broadening
 
-
-Nargs   = size(ARGS)[1]
+Nargs = size(ARGS)[1]
 if Nargs != 6
-    println("Number of arguments is wrong. h5name, outname, freq, Fermi, NE, %")
+    println("Number of arguments (", Nargs, ") is wrong. Usage:\n")
+    println("julia process_moments.jl [input hdf filename] [output filename] [frequency] [Fermi energy] [number of integration energies] [percentage].\n")
+    println("Example: julia process_moments.jl hdfile.h5 rates.dat 2.0 0.2595 1000 70\n")
+    println("will calculate the hot carrier generation rate for a perturbation of frequency 2 eV, a Fermi energy of 0.2595 Hartree, 1000 energies in the numerical integration and using 70% of the total number of polynomials. This percentage is useful to estimate convergence.")
+    exit()
 end
 
 h5name  = ARGS[1] # name of the file with the Chebyshev moments
@@ -34,7 +37,7 @@ Fermi   = parse(Float64, ARGS[4]) # Fermi energy (Hartree)
 N1      = parse(Int,     ARGS[5]) # number of energies for the energy integration
 perc    = parse(Float64, ARGS[6]) # percentage of the Chebyshev polynomials to use
 
-println("Arguments read from command line: ", h5name, outname, hw, Fermi, N1, perc)
+println("Arguments read from command line: ", h5name, " ", outname, " ", hw, " ", Fermi, " ", N1, " ", perc)
 
 # Process the input
 N2 = N1
@@ -56,7 +59,7 @@ Ej,Nelist,Nhlist=compute_eh_list(mumn,N1,N2,hw,goldA,goldB,Fermi,beta,kappa,gph)
 
 f3=open(outname,"w")
 for i=1:lastindex(Ej)
-    write(f3,@sprintf(" %+1.15E",Ej[i]))
+    write(f3,@sprintf(" %+1.15E",Ej[i]*HaeV))
     write(f3,@sprintf(" %+1.15E",Nelist[i]))
     write(f3,@sprintf(" %+1.15E",Nhlist[i]))
     write(f3,"\n")

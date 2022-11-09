@@ -1,5 +1,28 @@
 
 
+function read_positions(filename)
+    # Read the atomic positions 
+    
+    fr = open(filename,"r")
+
+    # Ignore the first 8 lines (header) to output file
+    for i=1:9
+        line = readline(fr)
+    end
+
+    # Iterate over the positions and write to file
+    flines=readlines(fr)
+    for i in flines
+        j = split(i)
+        x = parse(Float64,j[1])
+        y = parse(Float64,j[2])
+        z = parse(Float64,j[3])
+    end
+    close(fr)
+
+    return R
+end
+
 
 
 
@@ -143,14 +166,13 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
     Dxm=cos.(NTxx.*acos.(xx))./sqrt.(1.0.-xx.^2)
 
     phi=Dxm*mutmn*Dny 
-    #factor=pi^2/B^2/4
     factor=4/B^2/pi^2
     phi=phi.*factor
 
 
     #writedlm("mutmn.dat", mutmn) 
-    writedlm("phi_cheb.dat", phi) # phi is the E,E' matrix
-    writedlm("energies_jl.dat", Ei)
+    # writedlm("phi_cheb.dat", phi) # phi is the E,E' matrix
+    # writedlm("energies_jl.dat", Ei)
     
     # Final step of the calculation: final integration of E,E' matrix
     # with a Gaussian broadened Dirac delta
@@ -184,7 +206,7 @@ function compute_eh_list(mumn,Nx,Ny,hw,A,B,Fermi,beta,kappa,gph)
     end 
 
     
-    writedlm("mask.dat", factor)
+    #writedlm("mask.dat", factor)
     
     Nelist=zeros(Ny)
     Nhlist=zeros(Ny)
