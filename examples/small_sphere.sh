@@ -21,13 +21,13 @@ perc=100     # percentage of Chebyshev polynomials to be kept
 # 1M atoms uses around 32GB of RAM with blocks of size 30
 
 echo "script: Generating positions for the shape: $shape with dimensions $R"
-julia ../src/generate_positions.jl $shape $R $rescale
+julia ../src/generate_positions.jl positions.dat $shape $R $rescale
 
 echo -e "\nscript: Determining potential. This step can also be done with Comsol"
 julia ../src/potential_sphere.jl positions.dat potential.dat $freq
 
 echo -e "\nscript: Calculating Chebyshev moments"
-julia ../src/moments.jl $shape $R potential.dat output.h5 $M $NR
+julia ../src/moments.jl potential.dat output.h5 $shape $R $M $NR
 
 echo -e "\nscript: Calculating hot carrier generation rate"
 julia ../src/process_moments.jl output.h5 rates.dat $freq $Fermi $NE $perc

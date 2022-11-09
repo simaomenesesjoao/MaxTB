@@ -57,10 +57,8 @@
 \shortcut idx
 \color #008000
 \end_index
-\leftmargin 2cm
-\topmargin 2cm
-\rightmargin 2cm
-\bottommargin 2cm
+\topmargin 3cm
+\bottommargin 3cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -155,7 +153,7 @@ N_{e}\left(E,\omega\right)=\frac{2}{V}\sum_{if}\Gamma_{if}\left(\omega\right)\de
 where 
 \begin_inset Formula 
 \[
-\Gamma_{if}=\frac{2\pi}{\hbar}\left|\left\langle f\left|\Phi_{\text{tot}}\left(\omega\right)\right|i\right\rangle \right|^{2}\delta\left(E_{f}-E_{i}-\hbar\omega\right)f\left(E_{i}\right)\left(1-f\left(E_{f}\right)\right).
+\Gamma_{if}=\frac{2\pi}{\hbar}\left|\left\langle f\left|\phi_{\text{tot}}\left(\omega\right)\right|i\right\rangle \right|^{2}\delta\left(E_{f}-E_{i}-\hbar\omega\right)f\left(E_{i}\right)\left(1-f\left(E_{f}\right)\right).
 \]
 
 \end_inset
@@ -178,6 +176,77 @@ where
 \end_inset
 
 .
+ The interpretation of each of the terms is the following:
+\end_layout
+
+\begin_layout Enumerate
+The electric field does not affect every pair of states in the same manner.
+ The number 
+\begin_inset Formula $\left\langle f\left|\phi_{\text{tot}}\left(\omega\right)\right|i\right\rangle $
+\end_inset
+
+ codifies this effect.
+ 
+\end_layout
+
+\begin_layout Enumerate
+The product of Fermi functions 
+\begin_inset Formula $f\left(E_{i}\right)\left(1-f\left(E_{f}\right)\right)$
+\end_inset
+
+ ensures that only initial states below the Fermi energy and final states
+ above the Fermi energy contribute to this integral.
+ A finite temperature relaxes this restriction slightly.
+ 
+\end_layout
+
+\begin_layout Enumerate
+The second Dirac delta 
+\begin_inset Formula $\delta\left(E_{f}-E_{i}-\hbar\omega\right)$
+\end_inset
+
+ is a consequence of the interaction with the electric field of frequency
+ 
+\begin_inset Formula $\omega$
+\end_inset
+
+.
+ The electric field only causes transitions which change the energy by 
+\begin_inset Formula $\hbar\omega$
+\end_inset
+
+.
+ In practice, there are many mechanisms going on inside the nanoparticle,
+ which slightly violate this restriction, so the Dirac delta is instead
+ approximated by a gaussian of a certain width 
+\begin_inset Formula $\gamma$
+\end_inset
+
+, denoted by 
+\begin_inset Formula $\delta_{\gamma}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The first Dirac delta 
+\begin_inset Formula $\delta\left(E-E_{f}\right)$
+\end_inset
+
+ means that only final states which have energy 
+\begin_inset Formula $E$
+\end_inset
+
+ are to be considered.
+ Like before, this Dirac delta can also be approximated by a gaussian of
+ a certain (different) width 
+\begin_inset Formula $\lambda$
+\end_inset
+
+, representing the limited resolution of the measuring apparatus.
+ If this is ignored, we have infinite resolution, which gives rise to sharp
+ peaks.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -267,13 +336,395 @@ Calculation of the Fermi Golden Rule
 \end_layout
 
 \begin_layout Standard
-To understand what the code is doing, it is useful to understand the mathematica
-l operations that are required in order to compute 
-\begin_inset Formula $N_{e}\left(E,\omega\right)$
+In practice, for large nanoparticles, the form used for the Fermi golden
+ rule is the following:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\left(1-f\left(E\right)\right)\int_{-\infty}^{\infty}d\varepsilon f\left(\varepsilon\right)\delta_{\gamma}\left(E-\varepsilon-\hbar\omega\right)\Phi_{\omega}\left(\varepsilon,E\right)\label{eq: HC generation rate infinite precision}
+\end{equation}
+
 \end_inset
 
+ where
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\text{Tr}\left[\phi_{\text{tot}}\left(\omega\right)\delta\left(\varepsilon-H\right)\phi_{\text{tot}}^{\dagger}\left(\omega\right)\delta\left(\varepsilon^{\prime}-H\right)\right]
+\]
+
+\end_inset
+
+represents the optical matrix in energy space rather than the eigenbasis
+ of the Hamiltonian.
+ It is calculated by decomposing it into a double Chebyshev expansion
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\sum_{n=0}^{M-1}\sum_{m=0}^{M-1}\Delta_{n}\left(\varepsilon\right)\Delta_{m}\left(\varepsilon^{\prime}\right)\mu_{nm}\label{eq: Optical matrix element as Cheb expansion}
+\end{equation}
+
+\end_inset
+
+where
+\begin_inset Formula 
+\begin{equation}
+\mu_{nm}=\text{Tr}\left[\phi_{\text{tot}}\left(\omega\right)T_{n}\left(H\right)\phi_{\text{tot}}^{\dagger}\left(\omega\right)T_{m}\left(H\right)\right]\label{eq: Cheb moments}
+\end{equation}
+
+\end_inset
+
+is the matrix of Chebyshev moments.
+ 
+\begin_inset Formula $T_{n}\left(H\right)$
+\end_inset
+
+ is the 
+\begin_inset Formula $n$
+\end_inset
+
+-th Chebyshev polynomial with a matrix argument.
+ 
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Quick-start guide
+\end_layout
+
+\begin_layout Standard
+The code is separated into four distinct sections, each for a distinct operation.
+ The main sections are: 1) Generating the atomic positions inside the nanopartic
+le shape; 2) Computing the electric potential for those positions; 3) Calculatin
+g the Chebyshev moments with this potential and 4) Resumming the Chebyshev
+ series to obtain the hot carrier generation rate.
+\end_layout
+
+\begin_layout Enumerate
+First, we need to generate the positions of the atoms within the nanoparticle.
+ So we specify which shape we want and its size by calling for example
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\texttt{julia src/generate\_positions.jl sphere 2.0 positions.dat false}$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+The first argument is the shape.
+ 
+\begin_inset Formula $\texttt{sphere}$
+\end_inset
+
+ can be replaced by 
+\begin_inset Formula $\texttt{octahedron}$
+\end_inset
+
+, 
+\begin_inset Formula $\texttt{cube}$
+\end_inset
+
+ or 
+\begin_inset Formula $\texttt{rhombic}$
+\end_inset
+
+
+\series bold
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\series default
+ to produce other shapes.
+ The meaning of the second argument depends on the shape.
+ If the shape is a sphere, then the second argument is its radius in nanometers.
+ If the shape is any of the other three options, it represents the length
+ of any of their edges, in nanometers.
+ The last argument is a flag which if set to true, will rescale the atomic
+ positions so that the whole nanoparticle fits inside a cube of dimensions
+ 
+\begin_inset Formula $3\times3\times3$
+\end_inset
+
+nm.
+ This is for technical purposes (see section on Comsol rescaling) and normally
+ the flag should be set to false.
+ The positions get written to a file specified by the third argument, here
+ it was called 
+\series bold
+
+\begin_inset Formula $\texttt{positions.dat}$
+\end_inset
+
+
+\series default
 .
- Since diagonalization is very hard to do for large matrices, we need to
+ This file is in a format which can be read by Comsol if needed.
+ The first 
+\begin_inset Formula $9$
+\end_inset
+
+ lines of this file are the Comsol header.
+ Following these lines, there are three columns, with the coordinates of
+ the atoms inside the nanoparticle in units of nm.
+ [images here]
+\end_layout
+
+\begin_layout Enumerate
+Use the positions to generate the potential inside the nanoparticle.
+ This requires the frequency of the incoming electric field as an input.
+ If the nanoparticle is a sphere, the potential inside it has a known exact
+ shape, which can be evaluated directly in Julia.
+ If the shape isn't a sphere, then the potential has to be found by solving
+ Maxwell's equations inside the nanoparticle.
+ This is done with Comsol (see later sections for details on this).
+ Assuming the nanoparticle is a sphere, we can run the following line to
+ produce the potential
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\texttt{julia src/potential\_sphere.jl positions.dat potential.dat 1.9}$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+The first argument is the set of atomic positions inside the nanoparticle,
+ the second argument is the name of the output file and the third argument
+ is the frequency of the external electric field in units of eV, assuming
+ the electric field is oriented along the 
+\begin_inset Formula $z$
+\end_inset
+
+ direction.
+ The potential calculated is the following
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\phi_{\text{tot}}\left(\omega,z\right)=\frac{3\varepsilon_{m}}{\varepsilon\left(\omega\right)+2\varepsilon_{m}}\left(-e\right)E_{0}z
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $E_{0}=1\text{V/nm}$
+\end_inset
+
+, 
+\begin_inset Formula $z$
+\end_inset
+
+ is the position along the 
+\begin_inset Formula $z$
+\end_inset
+
+ axis in nanometers and 
+\begin_inset Formula $-e<0$
+\end_inset
+
+ is the electron charge.
+ 
+\begin_inset Formula $\varepsilon_{m}=2$
+\end_inset
+
+ is the relative permittivity of the environment and 
+\begin_inset Formula $\varepsilon\left(\omega\right)$
+\end_inset
+
+ is the (frequency-dependent) relative dielectric constant of the material
+ used in the nanoparticle - gold in this case.
+ The output file containing the potential consists of a 9-line header followed
+ by four columns.
+ The first three columns represent the 
+\begin_inset Formula $x$
+\end_inset
+
+, 
+\begin_inset Formula $y$
+\end_inset
+
+ and 
+\begin_inset Formula $z$
+\end_inset
+
+ coordinates of the atoms (in nanometers) and the fourth column represents
+ the complex electric potential at those points, in units of Volt.
+\end_layout
+
+\begin_layout Enumerate
+Use the potential to generate the Chebyshev moment.
+ Example:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\texttt{julia src/moments.jl potential.dat output.h5 sphere 2.0 1000 10}$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+The first argument is the file with the electric potential, the second argument
+ is the name of the file to which the Chebyshev moments will be written,
+ the third argument is the shape, the fourth is the length associated with
+ that shape (this has to be exactly the same value as used to obtain the
+ atomic positions - see first point), the fifth is the number of Chebyshev
+ polynomials to use in the expansion and the last argument is the number
+ of random vectors used to compute the trace.
+\end_layout
+
+\begin_layout Enumerate
+Use the Chebyshev moments to calculate the hot carrier generation rate.
+ Example:
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula $\texttt{julia src/process\_moments.jl output.h5 rates.dat 1.9 0.2595 1000 70}$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+The first argument is the output from the previous point - the file with
+ the Chebyshev moments.
+ The second argument is the name of the file to be used as output with the
+ hot carrier generation rates.
+ The third argument is the frequency of the electric field (has to be identical
+ to the one used in point 2) in units of eV.
+ The fourth argument is the Fermi energy in units of Hartree.
+ The fifth is the number of energies to be used both in the final numerical
+ integration and as the number of energies at which the hot carrier generation
+ rate is being calculated.
+ The last argument is the percentage of Chebyshev moments to be kept (useful
+ for convergence analysis).
+ For example, if this is set to 
+\begin_inset Formula $70\%$
+\end_inset
+
+, then 
+\begin_inset Formula $700$
+\end_inset
+
+ Chebyshev polynomials would be used instead of 
+\begin_inset Formula $1000$
+\end_inset
+
+ (see numbers of previous point).
+ The output file has three columns: 1) Set of energies at which the hot
+ carrier generation rate is being evaluated, in units of eV; 2) Hot electron
+ generation rate (units of eV⁻¹ s⁻¹); 3) Hot hole generation rate (units
+ of eV⁻¹ s⁻¹).
+\end_layout
+
+\begin_layout Standard
+These four files are interfaces to the julia libraries containing the algorithms.
+ The scheme below sums up the workflow and the functions (and libraries)
+ envolved in this process.
+ See next sections for more detail on each.
+ 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename code1.svg
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Interpretation of the hot carrier generation rates.
+\end_layout
+
+\begin_layout Standard
+To do
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Technical information
+\end_layout
+
+\begin_layout Section
+Transforming the Fermi Golden Rule
+\end_layout
+
+\begin_layout Standard
+Since diagonalization is very hard to do for large matrices, we need to
  express 
 \begin_inset Formula $N_{e}$
 \end_inset
@@ -365,88 +816,18 @@ N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\int_{-\infty}^{\infty}d\varepsil
 \begin_inset Formula $\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)$
 \end_inset
 
- during the integration process:
-\end_layout
-
-\begin_layout Enumerate
-the product of Fermi functions 
-\begin_inset Formula $f\left(\varepsilon\right)\left(1-f\left(\varepsilon^{\prime}\right)\right)$
+ during the integration process.
+ Using the first Dirac delta to eliminate the integral in 
+\begin_inset Formula $\varepsilon^{\prime},$
 \end_inset
 
- ensures that only initial states below the Fermi energy and final states
- above the Fermi energy contribute to this integral.
- A finite temperature relaxes this restriction slightly.
- 
-\end_layout
-
-\begin_layout Enumerate
-The second Dirac delta 
-\begin_inset Formula $\delta\left(\varepsilon^{\prime}-\varepsilon-\hbar\omega\right)$
-\end_inset
-
- is a consequence of the interaction with the electric field of frequency
- 
-\begin_inset Formula $\omega$
-\end_inset
-
-.
- The electric field only causes transitions which change the energy by 
-\begin_inset Formula $\hbar\omega$
-\end_inset
-
-.
- In practice, there are many mechanisms going on inside the nanoparticle,
- which slightly violate this restriction, so the Dirac delta is instead
- approximated by a gaussian of a certain width 
-\begin_inset Formula $\gamma$
-\end_inset
-
-, denoted by 
-\begin_inset Formula $\delta_{\gamma}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-The first Dirac delta 
-\begin_inset Formula $\delta\left(E-\varepsilon^{\prime}\right)$
-\end_inset
-
- means that only final states which have energy 
-\begin_inset Formula $E$
-\end_inset
-
- are to be considered.
- Like before, this Dirac delta can also be approximated by a gaussian of
- a certain (different) width 
-\begin_inset Formula $\lambda$
-\end_inset
-
-, representing the limited resolution of the measuring apparatus.
- If this is ignored, we have infinite resolution, and the definition of
- the Dirac delta can be used to simplify the integral in 
-\begin_inset Formula $\varepsilon^{\prime}$
-\end_inset
-
-.
- This is what is done in the code (but see next section - a finite number
- of Chebyshev polynomials effectively translates into a finite resolution
- anyway).
-\end_layout
-
-\begin_layout Standard
-With point 
-\begin_inset Formula $3$
-\end_inset
-
- in mind, the hot carrier generation rate can be simplified to
+ the hot carrier generation rate can be simplified to
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\left(1-f\left(E\right)\right)\int_{-\infty}^{\infty}d\varepsilon f\left(\varepsilon\right)\delta_{\gamma}\left(E-\varepsilon-\hbar\omega\right)\Phi_{\omega}\left(\varepsilon,E\right).\label{eq: HC generation rate infinite precision}
+N_{e}\left(E,\omega\right)=\frac{4\pi}{\hbar V}\left(1-f\left(E\right)\right)\int_{-\infty}^{\infty}d\varepsilon f\left(\varepsilon\right)\delta_{\gamma}\left(E-\varepsilon-\hbar\omega\right)\Phi_{\omega}\left(\varepsilon,E\right).\label{eq: HC generation rate infinite precision-1}
 \end{equation}
 
 \end_inset
@@ -497,17 +878,10 @@ is the coefficient of the expansion regularized by the Jackson weight
 \end_inset
 
  and can be calculated in two steps.
-\end_layout
-
-\begin_layout Subsubsection*
-Step 1: Calculation of the Chebyshev moments
+ The first step is to calculate the Chebyshev moments
 \end_layout
 
 \begin_layout Standard
-Gathering all the operators together, we get the Chebyshev moments
-\end_layout
-
-\begin_layout Subsubsection*
 \begin_inset Formula 
 \[
 \mu_{nm}=\text{Tr}\left[\Phi_{\text{tot}}\left(\omega\right)T_{n}\left(H\right)\Phi_{\text{tot}}^{\dagger}\left(\omega\right)T_{m}\left(H\right)\right]
@@ -515,95 +889,15 @@ Gathering all the operators together, we get the Chebyshev moments
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-which can be calculated very efficiently using the Chebyshev polynomials'
- recursion properties.
-\end_layout
-
-\begin_layout Subsubsection*
-Step 2: Resummation of the expansion
-\end_layout
-
-\begin_layout Standard
-What's left defines the optical matrix element 
-\begin_inset Formula $\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)$
-\end_inset
-
- in terms of the Chebyshev moments
-\end_layout
-
-\begin_layout Standard
+and the second is to resum the matrix:
 \begin_inset Formula 
 \[
-\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\sum_{n=0}^{M-1}\sum_{m=0}^{M-1}\Delta_{n}\left(\varepsilon\right)\Delta_{m}\left(\varepsilon^{\prime}\right)\mu_{nm}.
-\]
-
-\end_inset
-
-Furthermore, considering 
-\begin_inset Formula $\Delta_{n}\left(\varepsilon\right)$
-\end_inset
-
- as a matrix 
-\begin_inset Formula $\Delta_{n\varepsilon}$
-\end_inset
-
-, this reduces to a triple matrix product
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\left[\Delta^{T}\mu\Delta\right]_{\varepsilon\varepsilon^{\prime}}
+\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)=\sum_{n=0}^{M-1}\sum_{m=0}^{M-1}\Delta_{n}\left(\varepsilon\right)\Delta_{m}\left(\varepsilon^{\prime}\right)\mu_{nm}
 \]
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-Once these two steps have been completed, the hot-carrier generation rate
- can be found by doing the final step of integrating 
-\begin_inset Formula $\Phi_{\omega}\left(\varepsilon,\varepsilon^{\prime}\right)$
-\end_inset
-
- according to eq.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq: HC generation rate infinite precision"
-plural "false"
-caps "false"
-noprefix "false"
-
-\end_inset
-
-.
- These three steps (1 - moments, 2 - resummation, 3 - integration) each
- represent three important parts of the workflow.
-\end_layout
-
-\begin_layout Section
-Workflow
-\end_layout
-
-\begin_layout Section
-Interpretation of the results
-\end_layout
-
-\begin_layout Standard
-\begin_inset Newpage pagebreak
-\end_inset
-
-
-\end_layout
-
-\begin_layout Part
-Technical information
 \end_layout
 
 \begin_layout Section
@@ -827,7 +1121,11 @@ Code
 \end_layout
 
 \begin_layout Section
-Dependencies
+External dependencies
+\end_layout
+
+\begin_layout Standard
+These are the dependencies required to run the program.
 \end_layout
 
 \begin_layout Itemize
@@ -911,11 +1209,11 @@ Pkg.add.(["DelimitedFiles", "Printf", "MKL", "Random", "Dates", "MKLSparse",
 \end_layout
 
 \begin_layout Itemize
-python3 with vpython for visualization (requires python < 3.8.6)
+python3 with vpython for visualization
 \end_layout
 
 \begin_layout Section
-Code organization
+Code organization [To do]
 \end_layout
 
 \begin_layout Standard
@@ -923,86 +1221,17 @@ This program consists of a main code written in Julia (.jl) and several auxiliar
  programs in Python.
 \end_layout
 
-\begin_layout Subsection*
-\begin_inset Formula $\texttt{shapelib.jl}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Contains several functions to help with the generation of the nanoparticles'
- shapes and atomic positions.
- 
-\begin_inset Formula $\texttt{shapelib.jl}$
-\end_inset
-
-
-\lang portuguese
- .
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\begin_inset Formula $\texttt{print\_positions\_comsol(R, filename, rescale)}$
-\end_inset
-
- 
-\series default
-- prints out the atomic positions (
-\begin_inset Formula $\texttt{R}$
-\end_inset
-
-) to a text file (
-\begin_inset Formula $\texttt{filename}$
-\end_inset
-
-) which can be read by 
-\begin_inset Formula $\texttt{COMSOL}$
-\end_inset
-
-.
- 
-\begin_inset Formula $\texttt{COMSOL}$
-\end_inset
-
- will then evaluate the electric potential at these positions.
- This file already has the 
-\begin_inset Formula $\texttt{COMSOL}$
-\end_inset
-
- header.
- If 
-\begin_inset Formula $\texttt{rescale}$
-\end_inset
-
- is set to true, then all the atomic positions will be rescaled to fit within
- a cube of length 
-\begin_inset Formula $1.5\text{nm}$
-\end_inset
-
-.
- See the section about 
-\begin_inset Formula $\texttt{COMSOL}$
-\end_inset
-
- for the reason behind this.
-\end_layout
-
-\begin_layout Standard
-isgenerate_positions.jl -
-\end_layout
-
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /mnt/data/projects_sync/imperial_nanoparticles/nanoparticle-fgr/code_org.svg
+	filename code_org.svg
+	scale 70
 
 \end_inset
 
@@ -1028,10 +1257,6 @@ Diagram showing how the code is organized.
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-shape_lib.jl
 \end_layout
 
 \end_body

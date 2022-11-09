@@ -26,18 +26,24 @@ include("gold.jl")
 Nargs = size(ARGS)[1]
 if Nargs != 6
     println("Number of arguments (", Nargs, ") is wrong. Usage:\n")
-    println("julia moments.jl [shape] [length scale] [potential filename] [output h5df filename] [M] [NR].\n")
-    println("Example: julia moments.jl sphere 2.0 potential.dat cheb_moments.h5 1000 3\n")
+    println("julia moments.jl [potential filename] [output h5df filename] [shape] [length] [M] [NR].\n")
+    println("Example: julia moments.jl potential.dat cheb_moments.h5 sphere 2.0 1000 3\n")
     println("will calculate the Chebyshev matrix with 1000 polynomials and 3 random vectors for a sphere of radius 2nm. The potential will be read from file 'potential.dat' and the Chebyshev matrix will be written to file 'cheb_moments.h5'.")
     exit()
 end
 
-shape_name = ARGS[1]
-Rmax       = parse(Float64, ARGS[2])
-potname = ARGS[3]
-h5name  = ARGS[4]
-M  = parse(Int64, ARGS[5]) # number of Chebyshev moments
-NR = parse(Int64, ARGS[6]) # number of random vectors
+potname    = ARGS[1] # name of the input potential file
+h5name     = ARGS[2] # name of the output hdf5 file with the Chebyshev moments
+shape_name = ARGS[3] # name of the shape
+Rmax       = parse(Float64, ARGS[4]) # length associated to the solid
+M          = parse(Int64,   ARGS[5]) # number of Chebyshev moments
+NR         = parse(Int64,   ARGS[6]) # number of random vectors
+
+shapes = ["octahedron", "cube", "rhombic", "sphere"]
+if !(shape_name in shapes)
+    println("Shape "*shape_name*" not supported. Use sphere, octahedron, cube or rhombic")
+    exit()
+end
 
 # Generate the positions of the atoms inside the nanoparticle
 l = Rmax/(a_0/2) # number of atomic (100) planes
@@ -97,7 +103,7 @@ Meff = D1*M1
 
 println("Computing Chebyshev moments")
 println("Computing ",Meff,"x",Meff," Chebyshev matrix in blocks of size ",M1,"x",M2," for a total of ",D1,"x",D2," blocks.")
-mumn=compute_mumn!(H,Phi,M1,M2,D1,D2,NR)
+mumn = compute_mumn!(H,Phi,M1,M2,D1,D2,NR)
 
 println("Storing Chebyshev moments in hdf file: ", h5name)
 fid = h5open(h5name, "w")
