@@ -3,8 +3,6 @@
 include("potential.jl")
 
 Nargs = size(ARGS)[1]
-
-Nargs = size(ARGS)[1]
 if Nargs != 3
     println("Number of arguments (", Nargs, ") is wrong. Usage:\n")
     println("julia potential_sphere.jl [positions] [output filename] [frequency]\n")

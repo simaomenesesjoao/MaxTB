@@ -1,6 +1,6 @@
 # import vpython as vp
 from vpython import *
-box()
+box(color=vector(1,1,0))
 while True:
     rate(30)
 # import matplotlib.pyplot as plt

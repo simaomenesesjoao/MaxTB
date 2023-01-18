@@ -3,7 +3,7 @@ using DelimitedFiles
 using Printf
 
 goldA=0.5
-goldB=0.6
+goldB=1.0
 
 include("aux.jl")
 
@@ -55,7 +55,7 @@ m = Int(trunc(perc/100*m))
 mumn = mumn[1:n, 1:m]
 
 println("Resumming Chebyshev moments")
-Ej,Nelist,Nhlist=compute_eh_list(mumn,N1,N2,hw,goldA,goldB,Fermi,beta,kappa,gph)
+Ej,Nelist,Nhlist = compute_eh_list(mumn,N1,N2,hw,goldA,goldB,Fermi,beta,kappa,gph)
 
 f3=open(outname,"w")
 for i=1:lastindex(Ej)
