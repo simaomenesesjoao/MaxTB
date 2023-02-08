@@ -9,93 +9,9 @@ using MKL
 using Printf
 using NearestNeighbors
 
-function palladium()
-    # Palladium. Taken from page 237 of Papaconstantopolous's book
-    # The factor of two takes the units from Rydberg to Hartree
-    
-    # Local energies at each orbital
-    Es  = 0.94261/2
-    Ep  = 1.36110/2
-    Ed1 = 0.37285/2
-    Ed2 = 0.36265/2
-    onsite = [Es,Ed1,Ed1,Ed1,Ed2,Ed2,Ep,Ep,Ep]
-
-    # First neighbour
-    ss_sig = -0.07962/2
-    pp_sig =  0.17119/2
-    pp_pi  = -0.00540/2
-    dd_sig = -0.05216/2
-    dd_pi  =  0.02878/2
-    dd_del = -0.00533/2
-    sp_sig =  0.11332/2
-    sd_sig = -0.04885/2
-    pd_sig = -0.06563/2
-    pd_pi  =  0.02124/2
-    first_neighbour = [ss_sig, pp_sig, pp_pi, dd_sig, dd_pi, dd_del, sp_sig, sd_sig, pd_sig, pd_pi]
-
-    # Second neighbour
-    ss_sig = -0.00105/2
-    pp_sig =  0.04282/2
-    pp_pi  = -0.00044/2
-    dd_sig = -0.00385/2
-    dd_pi  =  0.00212/2
-    dd_del = -0.00026/2
-    sp_sig =  0.01048/2
-    sd_sig = -0.00837/2
-    pd_sig = -0.00738/2
-    pd_pi  =  0.00351/2
-    second_neighbour = [ss_sig, pp_sig, pp_pi, dd_sig, dd_pi, dd_del, sp_sig, sd_sig, pd_sig, pd_pi]
-
-    # KPM shift and scale
-    A = 0.5
-    B = 1.0
-    return [onsite, first_neighbour, second_neighbour, A, B]
-end
-
-
-function gold()
-    # Gold. Taken from page 298 of Papaconstantopolous's book
-    # The factor of two takes the units from Rydberg to Hartree
-    
-    # Local energies at each orbital
-    Es  = 0.56220/2
-    Ep  = 1.27897/2
-    Ed1 = 0.26097/2
-    Ed2 = 0.25309/2
-    onsite = [Es,Ed1,Ed1,Ed1,Ed2,Ed2,Ep,Ep,Ep]
-
-    # First neighbour
-    ss_sig = -0.06680/2
-    pp_sig =  0.17866/2
-    pp_pi  = -0.01645/2
-    dd_sig = -0.04971/2
-    dd_pi  =  0.02624/2
-    dd_del = -0.00457/2
-    sp_sig =  0.09721/2
-    sd_sig = -0.04722/2
-    pd_sig = -0.06399/2
-    pd_pi  =  0.01896/2
-    first_neighbour = [ss_sig, pp_sig, pp_pi, dd_sig, dd_pi, dd_del, sp_sig, sd_sig, pd_sig, pd_pi]
-
-    # Second neighbour
-    ss_sig =  0.00277/2
-    pp_sig =  0.03707/2
-    pp_pi  = -0.01025/2
-    dd_sig = -0.00305/2
-    dd_pi  =  0.00240/2
-    dd_del = -0.00057/2
-    sp_sig =  0.00261/2
-    sd_sig = -0.00784/2
-    pd_sig = -0.00762/2
-    pd_pi  =  0.00470/2
-    second_neighbour = [ss_sig, pp_sig, pp_pi, dd_sig, dd_pi, dd_del, sp_sig, sd_sig, pd_sig, pd_pi]
-
-    # KPM shift and scale
-    A = 0.5
-    B = 1.0
-    return [onsite, first_neighbour, second_neighbour, A, B]
-end
-
+# Include the gold and palladium datasets
+include("gold.jl")
+include("palladium.jl")
 
 function tightbinding(material)
     if material == "gold"
@@ -108,13 +24,13 @@ function tightbinding(material)
     end
 end
 
-function slater_koster_FCC(Elist, Edict, material)
+function slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
     # Use the Slater-Koster parametrization for a set of atomic positions defined in Elist and Edict, 
     # using the parameters onsite, first_neighbour, second_neighbour
     # This is only valid for the FCC lattice
 
     # Get the tight-binding parameters
-    onsite, first_neighbour, second_neighbour, A, B = tightbinding(material)
+    # onsite, first_neighbour, second_neighbour, A, B, fermi, diel_fun = tightbinding(material)
     println(onsite, first_neighbour, second_neighbour)
 
     # 18 positions of the nearest (and next nearest) neighbors in cartesian coordinates?
