@@ -34,7 +34,7 @@ function dos()
     println("number of atoms", length(R))
 
     # Use list of atomic positions to determine the Hamiltonian. H is in KPM units
-    H = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B, L1=L, L2=L, L3=L, periodic=true)
+    H,v = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B, L1=L, L2=L, L3=L, periodic=true)
 
     # Build the Chebyshev vector
     mu = doscompute_mu!(H, N, Nk, flag)
@@ -54,7 +54,7 @@ function dos()
     println("number of atoms", length(R))
 
     # Use list of atomic positions to determine the Hamiltonian. H is in KPM units
-    H = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
+    H,v = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
 
     # Build the Chebyshev vector
     mu = doscompute_mu!(H, N, Nk, flag)

@@ -192,8 +192,8 @@ function nanoparticle_run(;ham_builder=[], pot_builder=[], hcg_builder=[], dist_
 
         if ham_desc == "predefined"
 
-            # Use list of atomic positions to determine the Hamiltonian
-            H = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
+            # Use list of atomic positions to determine the Hamiltonian and velocity operator
+            H, v = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
 
 
         # Get Hamiltonian sparse matrix from file

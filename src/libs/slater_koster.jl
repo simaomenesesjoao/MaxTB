@@ -11,6 +11,24 @@ using NearestNeighbors
 
 include("../materials/materials.jl")
 
+function Deque_to_vec(Elist,Edict,vararg...;Transform=nothing)
+    NN=length(Elist)
+    R=zeros(Float64,NN,3)
+    if isnothing(Transform)
+        for Ri in Elist
+            idx=Edict[Ri]
+            R[idx,:]=Ri
+        end
+        return R
+    else
+        for Ri in Elist
+            idx=Edict[Ri]
+            R[idx,:]=Transform(Ri,vararg)
+        end
+    return R
+    end
+end
+
 function getVAA(R, hops)
     V=Array{Float64,2}(undef,9,9)
 
@@ -272,10 +290,15 @@ function slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbo
         # println("table\n")
         # display(table)
 
+        R = Deque_to_vec(Elist,Edict)
+
         # build the sparse Hamiltonian matrix from the neighbor table and the hoppings
         global iidx  = Array{Int64,1}([])
         global jidx  = Array{Int64,1}([])
-        global value = Array{ComplexF64,1}([])
+        global value = Array{ComplexF64,1}([]) # hamiltonian
+
+        global iidx_r  = Array{Int64,1}([])
+        global value_r = Array{ComplexF64,1}([]) # position operator
         for Atomi=1:NNA
             iptr = (Atomi-1)*Norbitals
 
@@ -284,6 +307,9 @@ function slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbo
                 push!(iidx, k+iptr)
                 push!(jidx, k+iptr)
                 push!(value, onsiteKPM[k])
+
+                push!(iidx_r, k+iptr)
+                push!(value_r, R[Atomi])
             end
 
 
@@ -298,13 +324,16 @@ function slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbo
                 end
             end
         end
+
         # mat = zeros(Float64,length(iidx), 3)
         # mat[:,1] = iidx
         # mat[:,2] = jidx
         # mat[:,3] = value
         # display(mat)
         H = sparse(iidx, jidx, value)
-        return H
+        pos_operator = sparse(iidx_r, iidx_r, value_r)
+        v = (H*pos_operator - pos_operator*H).*im
+        return H,v
     end 
 
 
@@ -323,6 +352,6 @@ function slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbo
         return getVAA(R, hops)
     end
 
-    H = getHamiltonian(Elist, Edict, nnlist./2, nnlist, getVAA2, A=A, B=B, L1=L1, L2=L2, L3=L3, periodic=periodic)
-    return H
+    H,v = getHamiltonian(Elist, Edict, nnlist./2, nnlist, getVAA2, A=A, B=B, L1=L1, L2=L2, L3=L3, periodic=periodic)
+    return H,v
 end

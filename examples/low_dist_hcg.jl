@@ -78,7 +78,7 @@ function raw()
     Elist, Edict, R = generate_shape_FCC(rad, shape, a0)
 
     # Use list of atomic positions to determine the Hamiltonian. H is in KPM units
-    H = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
+    H, v = slater_koster_FCC(Elist, Edict, onsite, first_neighbour, second_neighbour, A, B)
 
     # get the potential. Phi is in units of eV
     Phi = potential_sphere(R, eps, eps_m)
