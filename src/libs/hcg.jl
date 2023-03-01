@@ -198,7 +198,7 @@ function hcg_conv(mumn, A, B, NE, fermi_Ha, freq, beta, kappa, gph, print_conv)
     dist8 = norm(hcg1[2] - hcg8[2])
 
     # Check what happens when Fermi and frequency are changed
-    hcg9  = sum_hcg(opt1, Ei,  Ej, NE, NEp,  fermi_Ha+1, freq, beta, kappa, gph, write)
+    hcg9  = sum_hcg(opt1, Ei,  Ej, NE, NEp,  fermi_Ha+1/HaeV, freq, beta, kappa, gph, write)
     hcg10 = sum_hcg(opt1, Ei,  Ej, NE, NEp,  fermi_Ha, freq+1, beta, kappa, gph, write)
 
     if print_conv
