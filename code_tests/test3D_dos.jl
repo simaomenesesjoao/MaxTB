@@ -54,12 +54,13 @@ end
 println(length(ARGS))
 if length(ARGS) > 0 && ARGS[1] == "run"
     L = 8
+    # L = 128
     N = 200
     mater = "3DTB"
     dos = test(L, N, mater)
 
     open("dos.txt", "w") do io
-        writedlm(io, transpose(dos))
+        writedlm(io, dos)
     end
 
 end
