@@ -16,7 +16,7 @@ end
 function print_positions_comsol(R, filename; rescale::Bool=false)
     # Prints out the positions in a format that is nice to comsol
     # The positions are rescaled so that the shape lies within a cube 
-    # of length 3 centered at the origin
+    # of length 1 centered at the origin
     a,b = size(R)
     max_pos = maximum(abs.(R))
     println("Max position is", max_pos)
@@ -37,10 +37,10 @@ function print_positions_comsol(R, filename; rescale::Bool=false)
         x,y,z = R[i,:]
 
         # COMSOL expects the nanoparticles to lie within a cube
-        # of side 3 centered at the origin, so these points need
+        # of side 1 centered at the origin, so these points need
         # to be rescaled for that purpose
         if rescale
-            x,y,z = R[i,:]/max_pos*1.5
+            x,y,z = R[i,:]/max_pos*0.5
         end
         write(f,@sprintf("%f\t\t%f\t\t%f\n",x,y,z))
     end
@@ -155,8 +155,11 @@ end
 
 
 
-function generate_shape_FCC_lat(radius, shape_name)
+function generate_shape_FCC_lat(shape_name, radius, length1=nothing, length2=nothing)
     # Assumes FCC lattice, no units
+    # shape_name is one of the following: sphere, cube, octahedron, rhombic, prism, cylinder
+    # the sphere, cube, octahedron and rhombic dodecahedron only require one argument (denoted radius)
+    # but the prism and the cylinder require two (denoted by radius and length1)
 
     # 18 positions of the nearest (and next nearest) neighbors in cartesian coordinates?
     nnlist=[[1,1,0];;[-1,1,0];;[1,-1,0];;[-1,-1,0];;
@@ -183,6 +186,7 @@ function generate_shape_FCC_lat(radius, shape_name)
         
         # 6 planes defining the cube centered at 0,0,0, with faces parallel to xy, xz and yz
         arg = [l 0 0; -l 0 0 ; 0 l 0 ; 0 -l 0 ; 0 0 l ; 0 0 -l]
+
     elseif shape_name == "octahedron"
         func = in_shape_planes
 
@@ -208,6 +212,15 @@ function generate_shape_FCC_lat(radius, shape_name)
         # 6 planes defining the cube cornered at 0,0,0, with faces parallel to xy, xz and yz
         arg = [l 0 0; t 0 0 ; 0 l 0 ; 0 t 0 ; 0 0 l ; 0 0 t]
 
+    elseif shape_name == "prism"
+	func = in_shape_planes
+	l = radius
+	r = length1
+	h = length2
+
+        # 6 planes defining the prism centered at 0,0,0, with faces parallel to xy, xz and yz
+        arg = [l 0 0; -l 0 0 ; 0 r 0 ; 0 -r 0 ; 0 0 h ; 0 0 -h]
+
     else
         println("Shape "*shape_name*" not supported")
     end
@@ -217,19 +230,30 @@ function generate_shape_FCC_lat(radius, shape_name)
     return Elist, Edict
 end
 
+
+
 function Transform(R,vararg)
     # displacement function
     return R
 end 
 
-function generate_shape_FCC(radius, shape_name, a0, Transform=nothing)
+function generate_shape_FCC(shape_name, a0, radius, length1=nothing, length2=nothing, Transform=nothing)
     # Converts the units to lattice units, obtains positions in those units and
     # then converts back. 
     # a0 is the length of the FCC cube, a is half
     # in units of a, all atomic positions become integers
     # 'Transform' can be used to modify the positions according to some displacement function
     a = a0/2
-    Elist, Edict = generate_shape_FCC_lat(radius/a, shape_name)
+    if length2 == nothing
+	if length1 == nothing
+    	    Elist, Edict = generate_shape_FCC_lat(shape_name, radius/a)
+	else
+    	    Elist, Edict = generate_shape_FCC_lat(shape_name, radius/a, length1/a)
+    	end
+    else
+    	Elist, Edict = generate_shape_FCC_lat(shape_name, radius/a, length1/a, length2/a)
+    end
+
     R = Deque_to_vec(Elist, Edict; Transform=Transform)*a
     return Elist, Edict, R
 end
