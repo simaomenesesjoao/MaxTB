@@ -14,30 +14,29 @@ function aluminium()
     onsite = [Es,Ed1,Ed1,Ed1,Ed2,Ed2,Ep,Ep,Ep]
 
     # First neighbour (Ry)
-    ss_sig = -0.05831            
-    pp_sig =  0.17149            
-    pp_pi  = -0.01020           
-    dd_sig = -0.17004            
-    dd_pi  =  0.07394            
-    dd_del = -0.00490            
-    sp_sig = -0.09315            
-    sd_sig =  0.08296            
-    pd_sig = -0.16259            
+    ss_sig = -0.05831
+    pp_sig =  0.17149
+    pp_pi  = -0.01020
+    dd_sig = -0.17004
+    dd_pi  =  0.07394
+    dd_del = -0.00490
+    sp_sig = -0.09315
+    sd_sig =  0.08296
+    pd_sig = -0.16259
     pd_pi  =  0.03088
     first_neighbour = [sp_sig, ss_sig, pp_sig, pp_pi, sd_sig, pd_sig, pd_pi, dd_sig, dd_pi, dd_del]
 
     # Second neighbour (Ry)
-    ss_sig = -0.00163            
-    pp_sig =  0.00026            
-    pp_pi  = -0.00316            
-    dd_sig = -0.01163            
-    dd_pi  =  0.00315            
-    dd_del = -0.00283            
-    sp_sig =  0.00519            
-    sd_sig = -0.03032            
-    pd_sig =  0.02447            
+    ss_sig = -0.00163
+    pp_sig =  0.00026
+    pp_pi  = -0.00316
+    dd_sig = -0.01163
+    dd_pi  =  0.00315
+    dd_del = -0.00283
+    sp_sig =  0.00519
+    sd_sig = -0.03032
+    pd_sig =  0.02447
     pd_pi  = -0.00266
-
     second_neighbour = [sp_sig, ss_sig, pp_sig, pp_pi, sd_sig, pd_sig, pd_pi, dd_sig, dd_pi, dd_del]
 
     # Convert from Rydbert to Hartree
