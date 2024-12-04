@@ -3,6 +3,7 @@ include("../materials/gold.jl")
 include("../materials/silver.jl")
 include("../materials/al.jl")
 include("../materials/palladium.jl")
+include("../materials/platinum.jl")
 include("../materials/cube3D.jl")
 
 function tightbinding(material)
@@ -14,6 +15,8 @@ function tightbinding(material)
         return palladium()
     elseif material == "aluminium"
         return aluminium()
+    elseif material == "platinum"
+        return platinum()
     elseif material == "3DTB"
         return cube()
     else

@@ -29,11 +29,8 @@ function get_dos(mu, perc, minE_Ha, maxE_Ha, NE, A, B)
 
     # Create the energy array
     xlist = LinRange(minE_Ha, maxE_Ha, NE)
-    # println(xlist[1], " ", xlist[end])
     xlist = (collect(xlist) .- A)./B
-    # xlist = LinRange(-0.99, 0.99, NE)
-    # println(xlist[1], " ",xlist[end])
-
+    
     # Resum the Chebyshev series decomposition
     T = zeros(ComplexF64, 2, NE)
     T[1,:] = xlist.*0.0 .+ 1.0
@@ -57,7 +54,6 @@ function get_dos(mu, perc, minE_Ha, maxE_Ha, NE, A, B)
     data[:,1] = (xlist.*B .+ A)*HaeV
     data[:,2] = real.(dos)./B./HaeV
 
-    # println(data[1,1], " " , data[end,1])
     return data
                                 
 end

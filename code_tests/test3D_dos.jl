@@ -25,7 +25,7 @@ function test(L,N, mater)
     rad = (L-1+0.01)*a0/2 # [nm] dimension of nanoparticle
 
     # Generate list of atomic positions
-    Elist, Edict, R = generate_shape_FCC(rad, shape, a0)
+    Elist, Edict, R = generate_shape_FCC(shape, a0, rad)
     println("number of atoms: ", length(R))
 
     # Use list of atomic positions to determine the Hamiltonian. H is in KPM units
@@ -38,11 +38,13 @@ function test(L,N, mater)
 
     # Get the DoS from the Chebyshev matrix
     perc = 100 # percentage of polynomials to keep
-    minE_Ha = -1 # smallest energy
-    maxE_Ha = +1 # largest energy 
     NE = 1000 # number of energy points
-    dos = get_dos(mu, perc, minE_Ha, maxE_Ha, NE, A, B)
 
+    # Set large limits to trigger the automatic DoS rescale inside get_dos
+    minE_Ha = -10 # smallest energy
+    maxE_Ha = +10 # largest energy 
+
+    dos = get_dos(mu, perc, minE_Ha, maxE_Ha, NE, A, B)
 
     return dos
 
